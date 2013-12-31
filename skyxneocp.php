@@ -1,15 +1,40 @@
 <?php
+/*
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 header('Content-type: text/plain');
-#print("<pre>");
-#print("  1915 1953 EA       |2013 11 04.000|0.570460  |2.544271| 20.3971|162.9713 |347.8039 | 2000| 32.7163  |18.97| 0.10|   0.00\n");
 $NEOCP="http://www.minorplanetcenter.net/iau/NEO/neocp.txt";
 $orbitbaseurl="http://scully.cfa.harvard.edu/cgi-bin/showobsorbs.cgi?Obj=";
 
 $neos=file($NEOCP);
+print "
+# The output contains the orbits of NEO's listed on the Minor Planet 
+# Center NEOCP page in a format that can be added as an asteroid 
+# (Small DAtabase) file in TheSkyX.
+# NOTE1: ONS asteroids that have ony one nights data have 'ONS' appended
+# to the name. DO NOT use the name with 'ONS' appended when subnitting
+# astrometry to the MPC!
+# NOTE2: To stack images you will still need the rate and position angle which
+# can be determined from querying the NEOCP page.
+";
 foreach ($neos as $neo){
 	$id=strtok($neo," ");
 	
 	if (strpos($neo,'Added') !== false){
+		# Add 'ONS' to the newly added asteroids for convenience
+		# Don't add ONS to the name in MPC submission!
 		$name=$id." ONS";
 	} else {
 		$name = $id;
@@ -30,7 +55,8 @@ foreach ($neos as $neo){
 	$e=$values[8];
 	$n=$values[9];
 	$a=$values[10];
-	
+
+	# Unpack the packed date format
 	$epocharray=array('1' => 1, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8,
 	'9' => 9, 'A' => 10, 'B' => 11, 'C' => 12, 'D' => 13, 'E' => 14, 'F' => 15,
 	'G' => 16, 'H' => 17, 'I' => 18, 'J' => 19, 'K' => 20, 'L' => 21, 'M' => 22,
@@ -40,18 +66,9 @@ foreach ($neos as $neo){
 	$Month=substr($Epoch,3,1);
 	$Day=substr($Epoch,4,1);
 	$epochstring=$epocharray[$Year].substr($Epoch,1,2)." ".$epocharray[$Month]." ".$epocharray[$Day].".000";
-	printf("  %-19.19s|%-14.14s|%8.8s  |%8.8s| %7.7s|%8.8s |%8.8s | 2000| %-7.7s  |%-5s|%5s|   0.00\r\n",$name, $epochstring, $e,$a,$Incl,$Node,$Peri,$M,$H,$G);
 
-	/*
-	 *  #1915 1953 EA       |2013 11 04.000|0.570460  |2.544271| 20.3971|162.9713 |347.8039 | 2000| 32.7163  |18.97| 0.10|   0.00
-        #name               |epoch         |e         |a       |i       |Node     |Peri     |2000 |M         |H    |G    |??
-        print '  {:<19}'.format(self.ID) + "|"+'{:14}'.format(self._unpack_date())+"|" + '{:<10}'.format(self.e) + "|" + \
-            '{:<8}'.format(self.a) + "|"+ ' {:<8}'.format(self.Incl) + "|" + '{:<9}'.format(self.Node) + "|" + \
-            '{:<9}'.format(self.Peri) + "| 2000|" + '{:<10}'.format(self.M) + "|" + '{:<5}'.format(self.H) + "|" + \
-            '{:<5}'.format(self.G) + "|   0.00"
-            
-	 */
+	# Print as TheSkyX small asteroid databae format
+	printf("  %-19.19s|%-14.14s|%8.8s  |%8.8s| %7.7s|%8.8s |%8.8s | 2000| %-7.7s  |%-5s|%5s|   0.00\r\n",$name, $epochstring, $e,$a,$Incl,$Node,$Peri,$M,$H,$G);
 }
-#print("</pre>");
 
 ?>
