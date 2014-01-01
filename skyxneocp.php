@@ -13,6 +13,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+$db="small";
+$idb=$_GET["db"];
+if ($idb == "large"){
+    $db="large";
+}
 
 header('Content-type: text/plain');
 $NEOCP="http://www.minorplanetcenter.net/iau/NEO/neocp.txt";
@@ -22,7 +27,7 @@ $neos=file($NEOCP);
 print "
 # The output contains the orbits of NEO's listed on the Minor Planet 
 # Center NEOCP page in a format that can be added as an asteroid 
-# (Small DAtabase) file in TheSkyX.
+# (".$db." database) file in TheSkyX.
 # NOTE1: ONS asteroids that have ony one nights data have 'ONS' appended
 # to the name. DO NOT use the name with 'ONS' appended when subnitting
 # astrometry to the MPC!
@@ -68,7 +73,13 @@ foreach ($neos as $neo){
 	$epochstring=$epocharray[$Year].substr($Epoch,1,2)." ".$epocharray[$Month]." ".$epocharray[$Day].".000";
 
 	# Print as TheSkyX small asteroid databae format
-	printf("  %-19.19s|%-14.14s|%8.8s  |%8.8s| %7.7s|%8.8s |%8.8s | 2000| %-7.7s  |%-5s|%5s|   0.00\r\n",$name, $epochstring, $e,$a,$Incl,$Node,$Peri,$M,$H,$G);
+	if ($db=="small"){
+	    printf("  %-19.19s|%-14.14s|%8.8s  |%8.8s| %7.7s|%8.8s |%8.8s | 2000| %-7.7s  |%-5s|%5s|   0.00\r\n",$name, $epochstring, $e,$a,$Incl,$Node,$Peri,$M,$H,$G);
+	} else {
+	    # Large database format. http://www.minorplanetcenter.org/iau/info/MPOrbitFormat.html
+	    printf("%7.7s %5.5s %5.5s %5.5s %+9.9s  %+9.9s  %+9.9s  %+9.9s  %+9.9s %11.11s %11.11s  0 NEOCP      0    0   0         0    0   0   0          0     %27.27s        \r\n", $name, $H, $G, $Epoch, $M, $Peri, $Node, $Incl, $e, $n, $a, $name);
+	}
+
 }
 
 ?>
